@@ -1,4 +1,4 @@
-# Hilbert [![Test](https://github.com/bramp/hilbert/actions/workflows/test.yml/badge.svg)](https://github.com/bramp/hilbert/actions/workflows/test.yml) [![Coverage](https://img.shields.io/coveralls/google/hilbert.svg)](https://coveralls.io/github/google/hilbert) [![Report card](https://goreportcard.com/badge/github.com/google/hilbert)](https://goreportcard.com/report/github.com/google/hilbert) [![GoDoc](https://godoc.org/github.com/google/hilbert?status.svg)](https://godoc.org/github.com/google/hilbert) [![Libraries.io](https://img.shields.io/librariesio/github/google/hilbert.svg)](https://libraries.io/github/google/hilbert)
+# Hilbert [![Test](https://github.com/bramp/hilbert/actions/workflows/test.yml/badge.svg)](https://github.com/bramp/hilbert/actions/workflows/test.yml) [![Coverage](https://img.shields.io/coveralls/bramp/hilbert.svg)](https://coveralls.io/github/bramp/hilbert) [![Report card](https://goreportcard.com/badge/github.com/bramp/hilbert)](https://goreportcard.com/report/github.com/bramp/hilbert) [![GoDoc](https://godoc.org/github.com/bramp/hilbert?status.svg)](https://godoc.org/github.com/bramp/hilbert) [![Libraries.io](https://img.shields.io/librariesio/github/bramp/hilbert.svg)](https://libraries.io/github/bramp/hilbert)
 
 
 Go package for mapping values to and from space-filling curves, such as
@@ -6,7 +6,9 @@ Go package for mapping values to and from space-filling curves, such as
 
 ![Image of 8 by 8 Hilbert curve](images/hilbert.png)
 
-[Documentation available here](https://godoc.org/github.com/google/hilbert)
+[Documentation available here](https://godoc.org/github.com/bramp/hilbert)
+
+*Note: This project was previously hosted at [github.com/google/hilbert](https://github.com/google/hilbert) but has moved to [github.com/bramp/hilbert](https://github.com/bramp/hilbert).*
 
 *This is not an official Google product (experimental or otherwise), it is just code that happens to be owned by Google.*
  
@@ -15,13 +17,13 @@ Go package for mapping values to and from space-filling curves, such as
 Install:
 
 ```bash
-go get github.com/google/hilbert
+go get github.com/bramp/hilbert
 ```
 
 Example:
 
 ```go
-import "github.com/google/hilbert"
+import "github.com/bramp/hilbert"
 	
 // Create a Hilbert curve for mapping to and from a 16 by 16 space.
 s, err := hilbert.NewHilbert(16)
@@ -43,7 +45,7 @@ The demo directory contains an example on how to draw an images of Hilbert and P
 as animations of varying sizes for both.
 
 ```bash
-go run $GOPATH/src/github.com/google/hilbert/demo/demo.go
+go run $GOPATH/src/github.com/bramp/hilbert/demo/demo.go
 ```
 
 and the following images are generated. 

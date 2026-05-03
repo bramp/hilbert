@@ -38,9 +38,9 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/bramp/hilbert"
+	"github.com/bramp/hilbert/demo/lib"
 	"github.com/fogleman/gg"
-	"github.com/google/hilbert"
-	"github.com/google/hilbert/demo/lib"
 )
 
 // spaceFillingImage facilitates the drawing of a space filing curve.

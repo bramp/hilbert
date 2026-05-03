@@ -17,7 +17,7 @@ package hilbert_test
 import (
 	"fmt"
 
-	"github.com/google/hilbert"
+	"github.com/bramp/hilbert"
 )
 
 func Example() {

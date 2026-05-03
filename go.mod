@@ -1,4 +1,4 @@
-module github.com/google/hilbert
+module github.com/bramp/hilbert
 
 go 1.26.2
 
