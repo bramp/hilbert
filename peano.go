@@ -120,11 +120,33 @@ func (p *Peano) rotate(n, x, y, s int) (int, int) {
 }
 
 // MapInverse transform coordinates on the Peano curve from (x,y) to t.
-// NOT IMPLEMENTED YET
 func (p *Peano) MapInverse(x, y int) (t int, err error) {
 	if x < 0 || x >= p.N || y < 0 || y >= p.N {
 		return -1, ErrOutOfRange
 	}
 
-	panic("Not finished")
+	for i := p.N / 3; i > 0; i = i / 3 {
+		rx := int(x / i)
+		ry := int(y / i)
+
+		s := 0
+		if rx == 0 {
+			s = ry
+		} else if rx == 1 {
+			s = 3 + (2 - ry)
+		} else {
+			s = 6 + ry
+		}
+
+		t += s * (i * i)
+
+		x %= i
+		y %= i
+
+		if i > 1 {
+			x, y = p.rotate(i, x, y, s)
+		}
+	}
+
+	return t, nil
 }

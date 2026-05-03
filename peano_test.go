@@ -80,23 +80,22 @@ func TestPeanoMapRangeErrors(t *testing.T) {
 	}
 }
 
-/*
 func TestPeanoMapInverseRangeErrors(t *testing.T) {
 	var mapInverseRangeTestCases = []struct {
 		x, y    int
 		wantErr error
 	}{
 		{0, 0, nil},
-		{15, 15, nil},
+		{8, 8, nil},
 		{-1, 0, ErrOutOfRange},
 		{0, -1, ErrOutOfRange},
-		{16, 0, ErrOutOfRange},
-		{0, 16, ErrOutOfRange},
+		{9, 0, ErrOutOfRange},
+		{0, 9, ErrOutOfRange},
 	}
 
-	s, err := New(16)
+	s, err := NewPeano(9)
 	if err != nil {
-		t.Fatalf("Failed to create hibert space: %s", err)
+		t.Fatalf("Failed to create peano space: %s", err)
 	}
 
 	for _, tc := range mapInverseRangeTestCases {
@@ -105,7 +104,6 @@ func TestPeanoMapInverseRangeErrors(t *testing.T) {
 		}
 	}
 }
-*/
 
 func TestPeanoSmallMap(t *testing.T) {
 	s, err := NewPeano(1)
@@ -121,16 +119,13 @@ func TestPeanoSmallMap(t *testing.T) {
 		t.Errorf("Map(0) = (%d, %d) want (0, 0)", x, y)
 	}
 
-	/*
-		// TODO Test when MapInverse is implemented
-		d, err := s.MapInverse(0, 0)
-		if err != nil {
-			t.Errorf("MapInverse(0,0) returned error: %s", err)
-		}
-		if d != 0 {
-			t.Errorf("MapInverse(0, 0) failed, want 0, got %d", d)
-		}
-	*/
+	d, err := s.MapInverse(0, 0)
+	if err != nil {
+		t.Errorf("MapInverse(0,0) returned error: %s", err)
+	}
+	if d != 0 {
+		t.Errorf("MapInverse(0, 0) failed, want 0, got %d", d)
+	}
 }
 
 func TestPeanoMap(t *testing.T) {
@@ -150,50 +145,49 @@ func TestPeanoMap(t *testing.T) {
 	}
 }
 
-/*
-	func TestPeanoMapInverse(t *testing.T) {
-		s, err := New(16)
-		if err != nil {
-			t.Fatalf("Failed to create hibert space: %s", err)
-		}
-
-		for _, tc := range testCases {
-			d, err := s.MapInverse(tc.x, tc.y)
-			if err != nil {
-				t.Errorf("MapInverse(%d, %d) returned error: %s", tc.x, tc.y, err)
-			}
-			if d != tc.d {
-				t.Errorf("MapInverse(%d, %d) failed, want %d, got %d", tc.x, tc.y, tc.d, d)
-			}
-		}
+func TestPeanoMapInverse(t *testing.T) {
+	s, err := NewPeano(9)
+	if err != nil {
+		t.Fatalf("Failed to create peano space: %s", err)
 	}
 
-	func TestPeanoAllMapValues(t *testing.T) {
-		s, err := New(16)
+	for _, tc := range peanoTestCases {
+		d, err := s.MapInverse(tc.x, tc.y)
 		if err != nil {
-			t.Fatalf("Failed to create hibert space: %s", err)
+			t.Errorf("MapInverse(%d, %d) returned error: %s", tc.x, tc.y, err)
 		}
-
-		for d := 0; d < s.N*s.N; d++ {
-			// Map forwards and then back
-			x, y, err := s.Map(d)
-			if err != nil {
-				t.Errorf("Map(%d) returned error: %s", d, err)
-			}
-			if x < 0 || x >= s.N || y < 0 || y >= s.N {
-				t.Errorf("Map(%d) returned x,y out of range: (%d, %d)", d, x, y)
-			}
-
-			dPrime, err := s.MapInverse(x, y)
-			if err != nil {
-				t.Errorf("MapInverse(%d, %d) returned error: %s", x, y, err)
-			}
-			if d != dPrime {
-				t.Errorf("Failed Map(%d) -> MapInverse(%d, %d) -> %d", d, x, y, dPrime)
-			}
+		if d != tc.d {
+			t.Errorf("MapInverse(%d, %d) failed, want %d, got %d", tc.x, tc.y, tc.d, d)
 		}
 	}
-*/
+}
+
+func TestPeanoAllMapValues(t *testing.T) {
+	s, err := NewPeano(27)
+	if err != nil {
+		t.Fatalf("Failed to create peano space: %s", err)
+	}
+
+	for d := 0; d < s.N*s.N; d++ {
+		// Map forwards and then back
+		x, y, err := s.Map(d)
+		if err != nil {
+			t.Errorf("Map(%d) returned error: %s", d, err)
+		}
+		if x < 0 || x >= s.N || y < 0 || y >= s.N {
+			t.Errorf("Map(%d) returned x,y out of range: (%d, %d)", d, x, y)
+		}
+
+		dPrime, err := s.MapInverse(x, y)
+		if err != nil {
+			t.Errorf("MapInverse(%d, %d) returned error: %s", x, y, err)
+		}
+		if d != dPrime {
+			t.Errorf("Failed Map(%d) -> MapInverse(%d, %d) -> %d", d, x, y, dPrime)
+		}
+	}
+}
+
 func BenchmarkPeanoMap(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		s, err := NewPeano(peanoBenchmarkN)
@@ -219,22 +213,20 @@ func BenchmarkPeanoMapRandom(b *testing.B) {
 	}
 }
 
-/*
 func BenchmarkPeanoMapInverse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		s, err := New(benchmarkN)
+		s, err := NewPeano(peanoBenchmarkN)
 		if err != nil {
-			b.Fatalf("Failed to create hibert space: %s", err)
+			b.Fatalf("Failed to create peano space: %s", err)
 		}
 
-		for x := 0; x < benchmarkN; x++ {
-			for y := 0; y < benchmarkN; y++ {
+		for x := 0; x < peanoBenchmarkN; x++ {
+			for y := 0; y < peanoBenchmarkN; y++ {
 				s.MapInverse(x, y)
 			}
 		}
 	}
 }
-*/
 
 func TestIsPow3(t *testing.T) {
 	testCases := []struct {
