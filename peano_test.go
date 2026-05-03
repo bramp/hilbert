@@ -151,48 +151,48 @@ func TestPeanoMap(t *testing.T) {
 }
 
 /*
-func TestPeanoMapInverse(t *testing.T) {
-	s, err := New(16)
-	if err != nil {
-		t.Fatalf("Failed to create hibert space: %s", err)
-	}
-
-	for _, tc := range testCases {
-		d, err := s.MapInverse(tc.x, tc.y)
+	func TestPeanoMapInverse(t *testing.T) {
+		s, err := New(16)
 		if err != nil {
-			t.Errorf("MapInverse(%d, %d) returned error: %s", tc.x, tc.y, err)
+			t.Fatalf("Failed to create hibert space: %s", err)
 		}
-		if d != tc.d {
-			t.Errorf("MapInverse(%d, %d) failed, want %d, got %d", tc.x, tc.y, tc.d, d)
+
+		for _, tc := range testCases {
+			d, err := s.MapInverse(tc.x, tc.y)
+			if err != nil {
+				t.Errorf("MapInverse(%d, %d) returned error: %s", tc.x, tc.y, err)
+			}
+			if d != tc.d {
+				t.Errorf("MapInverse(%d, %d) failed, want %d, got %d", tc.x, tc.y, tc.d, d)
+			}
 		}
 	}
-}
 
-func TestPeanoAllMapValues(t *testing.T) {
-	s, err := New(16)
-	if err != nil {
-		t.Fatalf("Failed to create hibert space: %s", err)
-	}
-
-	for d := 0; d < s.N*s.N; d++ {
-		// Map forwards and then back
-		x, y, err := s.Map(d)
+	func TestPeanoAllMapValues(t *testing.T) {
+		s, err := New(16)
 		if err != nil {
-			t.Errorf("Map(%d) returned error: %s", d, err)
-		}
-		if x < 0 || x >= s.N || y < 0 || y >= s.N {
-			t.Errorf("Map(%d) returned x,y out of range: (%d, %d)", d, x, y)
+			t.Fatalf("Failed to create hibert space: %s", err)
 		}
 
-		dPrime, err := s.MapInverse(x, y)
-		if err != nil {
-			t.Errorf("MapInverse(%d, %d) returned error: %s", x, y, err)
-		}
-		if d != dPrime {
-			t.Errorf("Failed Map(%d) -> MapInverse(%d, %d) -> %d", d, x, y, dPrime)
+		for d := 0; d < s.N*s.N; d++ {
+			// Map forwards and then back
+			x, y, err := s.Map(d)
+			if err != nil {
+				t.Errorf("Map(%d) returned error: %s", d, err)
+			}
+			if x < 0 || x >= s.N || y < 0 || y >= s.N {
+				t.Errorf("Map(%d) returned x,y out of range: (%d, %d)", d, x, y)
+			}
+
+			dPrime, err := s.MapInverse(x, y)
+			if err != nil {
+				t.Errorf("MapInverse(%d, %d) returned error: %s", x, y, err)
+			}
+			if d != dPrime {
+				t.Errorf("Failed Map(%d) -> MapInverse(%d, %d) -> %d", d, x, y, dPrime)
+			}
 		}
 	}
-}
 */
 func BenchmarkPeanoMap(b *testing.B) {
 	for i := 0; i < b.N; i++ {

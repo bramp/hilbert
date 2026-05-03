@@ -127,5 +127,4 @@ func (p *Peano) MapInverse(x, y int) (t int, err error) {
 	}
 
 	panic("Not finished")
-	return -1, nil
 }

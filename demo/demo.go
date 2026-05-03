@@ -14,16 +14,17 @@
 
 // Package main is a simple demo to show how to use the hilbert library
 // When ran, this demo will create the following images:
-// 	hilbert.png, hilbert_animation.gif, peano.png, and peano_animation.gif
+//
+//	hilbert.png, hilbert_animation.gif, peano.png, and peano_animation.gif
 //
 // It is suggested you optimise/compress both images before uploading.
-//     go run demo/demo.go
-//     zopflipng -y logo.png images/logo.png
-//     zopflipng -y hilbert.png images/hilbert.png
-//     zopflipng -y peano.png images/peano.png
-//     gifsicle -O -o images/hilbert_animation.gif hilbert_animation.gif
-//     gifsicle -O -o images/peano_animation.gif peano_animation.gif
 //
+//	go run demo/demo.go
+//	zopflipng -y logo.png images/logo.png
+//	zopflipng -y hilbert.png images/hilbert.png
+//	zopflipng -y peano.png images/peano.png
+//	gifsicle -O -o images/hilbert_animation.gif hilbert_animation.gif
+//	gifsicle -O -o images/peano_animation.gif peano_animation.gif
 package main
 
 import (
@@ -34,11 +35,12 @@ import (
 	"log"
 	"os"
 
+	"math"
+	"strconv"
+
 	"github.com/fogleman/gg"
 	"github.com/google/hilbert"
 	"github.com/google/hilbert/demo/lib"
-	"math"
-	"strconv"
 )
 
 // spaceFillingImage facilitates the drawing of a space filing curve.

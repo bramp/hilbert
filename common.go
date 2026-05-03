@@ -18,9 +18,9 @@ import "errors"
 
 // Errors returned when validating input.
 var (
-	ErrNotPositive     = errors.New("N must be greater than zero")
-	ErrNotPowerOfTwo   = errors.New("N must be a power of two")
-	ErrNotPowerOfThree = errors.New("N must be a power of three")
+	ErrNotPositive     = errors.New("n must be greater than zero")
+	ErrNotPowerOfTwo   = errors.New("n must be a power of two")
+	ErrNotPowerOfThree = errors.New("n must be a power of three")
 	ErrOutOfRange      = errors.New("value is out of range")
 )
 
