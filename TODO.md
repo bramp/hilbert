@@ -10,10 +10,10 @@ This document tracks the progress of adding new space-filling curves to the `hil
 ## Curves to Implement
 
 ### 1. Morton Order (Z-Order)
-- [ ] Implementation (`morton.go`)
-- [ ] Tests (`morton_test.go`)
-- [ ] Sample image (`images/morton.png`)
-- [ ] README update
+- [x] Implementation (`morton.go`)
+- [x] Tests (`morton_test.go`)
+- [x] Sample image (`images/morton.png`)
+- [x] README update
 
 ### 2. Moore Curve
 - [ ] Implementation (`moore.go`)

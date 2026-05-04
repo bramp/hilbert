@@ -2,7 +2,7 @@
 
 
 Go package for mapping values to and from space-filling curves, such as
-[Hilbert](https://en.wikipedia.org/wiki/Hilbert_curve) and [Peano](https://en.wikipedia.org/wiki/Peano_curve) curves.
+Hilbert, Peano and Morton curves.
 
 ![Image of 8 by 8 Hilbert curve](images/hilbert.png)
 
@@ -11,7 +11,15 @@ Go package for mapping values to and from space-filling curves, such as
 *Note: This project was previously hosted at [github.com/google/hilbert](https://github.com/google/hilbert) but has moved to [github.com/bramp/hilbert](https://github.com/bramp/hilbert).*
 
 *This is not an official Google product (experimental or otherwise), it is just code that happens to be owned by Google.*
- 
+
+## Supported Curves
+
+| Curve | Visual | Description |
+| :--- | :---: | :--- |
+| **Hilbert** | ![8x8 Hilbert curve image](images/hilbert.png) | Excellent spatial locality, power-of-2 dimensions. |
+| **Peano** | ![9x9 Peano curve image](images/peano.png) | The original SFC, power-of-3 dimensions. |
+| **Morton** | ![8x8 Morton curve image](images/morton.png) | Fast bit-interleaving (Z-order), power-of-2 dimensions. |
+
 ## How to use
 
 Install:
