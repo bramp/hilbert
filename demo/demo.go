@@ -15,7 +15,8 @@
 // Package main is a simple demo to show how to use the hilbert library
 // When ran, this demo will create the following images:
 //
-//	hilbert.png, hilbert_animation.gif, peano.png, and peano_animation.gif
+//	hilbert.png, hilbert_animation.gif, peano.png, peano_animation.gif,
+//	morton.png, and morton_animation.gif
 //
 // It is suggested you optimise/compress both images before uploading.
 //
@@ -23,8 +24,10 @@
 //	zopflipng -y logo.png images/logo.png
 //	zopflipng -y hilbert.png images/hilbert.png
 //	zopflipng -y peano.png images/peano.png
+//	zopflipng -y morton.png images/morton.png
 //	gifsicle -O -o images/hilbert_animation.gif hilbert_animation.gif
 //	gifsicle -O -o images/peano_animation.gif peano_animation.gif
+//	gifsicle -O -o images/morton_animation.gif morton_animation.gif
 package main
 
 import (
@@ -246,6 +249,14 @@ func main() {
 		return s
 	}
 
+	newMorton := func(n int) hilbert.SpaceFilling {
+		s, err := hilbert.NewMorton(int(math.Pow(2, float64(n))))
+		if err != nil {
+			panic(fmt.Errorf("failed to create morton space: %s", err.Error()))
+		}
+		return s
+	}
+
 	if err := mainDrawLogo("logo.png", newHilbert(4)); err != nil {
 		log.Fatalf("Failed to draw image: %s", err.Error())
 	}
@@ -263,6 +274,14 @@ func main() {
 	}
 
 	if err := mainDrawAnimation("peano_animation.gif", newPeano, 1, 6); err != nil {
+		log.Fatalf("Failed to draw animation: %s", err.Error())
+	}
+
+	if err := mainDrawOne("morton.png", newMorton(3)); err != nil {
+		log.Fatalf("Failed to draw image: %s", err.Error())
+	}
+
+	if err := mainDrawAnimation("morton_animation.gif", newMorton, 1, 8); err != nil {
 		log.Fatalf("Failed to draw animation: %s", err.Error())
 	}
 
