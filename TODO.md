@@ -21,19 +21,31 @@ This document tracks the progress of adding new space-filling curves to the `hil
 - [x] Sample image (`images/moore.png`)
 - [x] README update
 
-### 3. Gosper Curve
-- [ ] Implementation (`gosper.go`)
-- [ ] Tests (`gosper_test.go`)
-- [ ] Sample image (`images/gosper.png`)
-- [ ] README update
-
-### 4. Sierpinski Curve
+### 3. Sierpinski Curve
 - [ ] Implementation (`sierpinski.go`)
 - [ ] Tests (`sierpinski_test.go`)
 - [ ] Sample image (`images/sierpinski.png`)
 - [ ] README update
 
-### 5. Dragon Curve
+### 4. Gray-code Traversal
+- [ ] Implementation (`graycode.go`)
+- [ ] Tests (`graycode_test.go`)
+- [ ] Sample image (`images/graycode.png`)
+- [ ] README update
+
+### 5. H-Curve
+- [ ] Implementation (`hcurve.go`)
+- [ ] Tests (`hcurve_test.go`)
+- [ ] Sample image (`images/hcurve.png`)
+- [ ] README update
+
+### 6. Gosper Curve
+- [ ] Implementation (`gosper.go`)
+- [ ] Tests (`gosper_test.go`)
+- [ ] Sample image (`images/gosper.png`)
+- [ ] README update
+
+### 7. Dragon Curve
 - [ ] Implementation (`dragon.go`)
 - [ ] Tests (`dragon_test.go`)
 - [ ] Sample image (`images/dragon.png`)
