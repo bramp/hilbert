@@ -22,10 +22,10 @@ This document tracks the progress of adding new space-filling curves to the `hil
 - [x] README update
 
 ### 3. Sierpinski Curve
-- [ ] Implementation (`sierpinski.go`)
+- [x] Implementation (`sierpinski.go`)
 - [ ] Tests (`sierpinski_test.go`)
-- [ ] Sample image (`images/sierpinski.png`)
-- [ ] README update
+- [x] Sample image (`images/sierpinski.png`)
+- [x] README update
 
 ### 4. Gray-code Traversal
 - [ ] Implementation (`graycode.go`)

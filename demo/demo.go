@@ -36,6 +36,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -44,6 +45,7 @@ import (
 	"os"
 
 	"math"
+	"path/filepath"
 	"strconv"
 
 	"github.com/bramp/hilbert"
@@ -237,6 +239,10 @@ func mainDrawLogo(filename string, curve hilbert.SpaceFilling) error {
 }
 
 func main() {
+	algo := flag.String("algo", "all", "The algorithm to draw (hilbert, peano, morton, moore, sierpinski, all)")
+	output := flag.String("output", "", "The output filename (e.g. images/hilbert.png). If omitted, uses default names.")
+	logo := flag.Bool("logo", false, "Draw the logo version (transparent background, no text/grid)")
+	flag.Parse()
 
 	newHilbert := func(n int) hilbert.SpaceFilling {
 		s, err := hilbert.NewHilbert(int(math.Pow(2, float64(n))))
@@ -278,48 +284,64 @@ func main() {
 		return s
 	}
 
-	if err := mainDrawLogo("logo.png", newHilbert(4)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
+	algos := map[string]struct {
+		newCurve func(n int) hilbert.SpaceFilling
+		min, max int
+	}{
+		"hilbert":    {newHilbert, 1, 8},
+		"peano":      {newPeano, 1, 6},
+		"morton":     {newMorton, 1, 8},
+		"moore":      {newMoore, 1, 8},
+		"sierpinski": {newSierpinski, 1, 8},
 	}
 
-	if err := mainDrawOne("hilbert.png", newHilbert(3)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
+	draw := func(name string) {
+		cfg, ok := algos[name]
+		if !ok {
+			log.Fatalf("Unknown algorithm: %s", name)
+		}
+
+		outName := *output
+		if outName == "" {
+			if *logo {
+				outName = "logo.png"
+			} else {
+				outName = name + ".png"
+			}
+		}
+
+		if *logo {
+			if err := mainDrawLogo(outName, cfg.newCurve(4)); err != nil {
+				log.Fatalf("Failed to draw logo: %v", err)
+			}
+			return
+		}
+
+		if filepath.Ext(outName) == ".gif" {
+			if err := mainDrawAnimation(outName, cfg.newCurve, cfg.min, cfg.max); err != nil {
+				log.Fatalf("Failed to draw animation: %v", err)
+			}
+		} else {
+			n := 3
+			if name == "peano" {
+				n = 2
+			}
+			if err := mainDrawOne(outName, cfg.newCurve(n)); err != nil {
+				log.Fatalf("Failed to draw image: %v", err)
+			}
+		}
 	}
 
-	if err := mainDrawAnimation("hilbert_animation.gif", newHilbert, 1, 8); err != nil {
-		log.Fatalf("Failed to draw animation: %s", err.Error())
+	if *algo == "all" {
+		for name := range algos {
+			draw(name)
+			// Also draw animation for 'all'
+			if err := mainDrawAnimation(name+"_animation.gif", algos[name].newCurve, algos[name].min, algos[name].max); err != nil {
+				log.Fatalf("Failed to draw animation: %v", err)
+			}
+		}
+		mainDrawLogo("logo.png", newHilbert(4))
+	} else {
+		draw(*algo)
 	}
-
-	if err := mainDrawOne("peano.png", newPeano(2)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
-	}
-
-	if err := mainDrawAnimation("peano_animation.gif", newPeano, 1, 6); err != nil {
-		log.Fatalf("Failed to draw animation: %s", err.Error())
-	}
-
-	if err := mainDrawOne("morton.png", newMorton(3)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
-	}
-
-	if err := mainDrawAnimation("morton_animation.gif", newMorton, 1, 8); err != nil {
-		log.Fatalf("Failed to draw animation: %s", err.Error())
-	}
-
-	if err := mainDrawOne("moore.png", newMoore(3)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
-	}
-
-	if err := mainDrawAnimation("moore_animation.gif", newMoore, 1, 8); err != nil {
-		log.Fatalf("Failed to draw animation: %s", err.Error())
-	}
-
-	if err := mainDrawOne("sierpinski.png", newSierpinski(3)); err != nil {
-		log.Fatalf("Failed to draw image: %s", err.Error())
-	}
-
-	if err := mainDrawAnimation("sierpinski_animation.gif", newSierpinski, 1, 8); err != nil {
-		log.Fatalf("Failed to draw animation: %s", err.Error())
-	}
-
 }

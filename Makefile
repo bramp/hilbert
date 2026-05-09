@@ -1,3 +1,5 @@
+.PHONY: all format analyze test test-ci demo fix upgrade images
+
 all: format analyze test
 
 format:
@@ -14,24 +16,37 @@ test:
 test-ci:
 	go test -v ./...
 
-images:
-	go run demo/demo.go
-	# Optimise PNGs
-	zopflipng -y logo.png images/logo.png
-	zopflipng -y hilbert.png images/hilbert.png
-	zopflipng -y peano.png images/peano.png
-	zopflipng -y morton.png images/morton.png
-	zopflipng -y moore.png images/moore.png
-	zopflipng -y sierpinski.png images/sierpinski.png
-	# Optimise GIFs
-	gifsicle -O3 --colors 256 -o images/hilbert_animation.gif hilbert_animation.gif
-	gifsicle -O3 --colors 256 -o images/peano_animation.gif peano_animation.gif
-	gifsicle -O3 --colors 256 -o images/morton_animation.gif morton_animation.gif
-	gifsicle -O3 --colors 256 -o images/moore_animation.gif moore_animation.gif
-	gifsicle -O3 --colors 256 -o images/sierpinski_animation.gif sierpinski_animation.gif
-	# Cleanup
-	rm logo.png hilbert.png peano.png morton.png moore.png sierpinski.png
-	rm hilbert_animation.gif peano_animation.gif morton_animation.gif moore_animation.gif sierpinski_animation.gif
+# Shared dependencies for all images
+COMMON_SRCS := common.go demo/demo.go
+
+# Pattern rule for static PNGs
+images/%.png: %.go $(COMMON_SRCS)
+	go run demo/demo.go -algo $* -output $@
+	zopflipng -y $@ $@
+
+# Pattern rule for animation GIFs
+images/%_animation.gif: %.go $(COMMON_SRCS)
+	go run demo/demo.go -algo $* -output $@
+	gifsicle -O3 --colors 256 -o $@ $@
+
+# Special cases for Moore (which depends on Hilbert)
+images/moore.png: hilbert.go
+images/moore_animation.gif: hilbert.go
+
+# Special case for the logo
+images/logo.png: hilbert.go $(COMMON_SRCS)
+	go run demo/demo.go -logo -output $@
+	zopflipng -y $@ $@
+
+# Aggregate target
+IMAGES := images/logo.png \
+	images/hilbert.png images/hilbert_animation.gif \
+	images/peano.png images/peano_animation.gif \
+	images/morton.png images/morton_animation.gif \
+	images/moore.png images/moore_animation.gif \
+	images/sierpinski.png images/sierpinski_animation.gif
+
+images: $(IMAGES)
 
 demo: images
 
