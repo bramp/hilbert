@@ -18,24 +18,12 @@ import (
 	"testing"
 )
 
-func TestMorton(t *testing.T) {
+func TestSierpinski(t *testing.T) {
 	testCurve(t, func(n int) (SpaceFilling, error) {
-		s, err := NewMorton(n)
+		s, err := NewSierpinski(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
-		{0, 0, 0},
-		{1, 0, 1},
-		{2, 1, 0},
-		{3, 1, 1},
-		{4, 0, 2},
-		{5, 0, 3},
-		{6, 1, 2},
-		{7, 1, 3},
-		{8, 2, 0},
-		{15, 3, 3},
-		{255, 15, 15},
-	})
+	}, 8, 3, ErrNotPowerOfTwo, nil)
 }
