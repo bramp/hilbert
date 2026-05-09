@@ -2,7 +2,7 @@
 
 
 Go package for mapping values to and from space-filling curves, such as
-Hilbert, Peano and Morton curves.
+Hilbert, Peano, Morton and Moore curves.
 
 ![Image of 8 by 8 Hilbert curve](images/hilbert.png)
 
@@ -16,9 +16,10 @@ Hilbert, Peano and Morton curves.
 
 | Curve | Visual | Description |
 | :--- | :---: | :--- |
-| **Hilbert** | ![8x8 Hilbert curve image](images/hilbert.png) | Excellent spatial locality, power-of-2 dimensions. |
-| **Peano** | ![9x9 Peano curve image](images/peano.png) | The original SFC, power-of-3 dimensions. |
-| **Morton** | ![8x8 Morton curve image](images/morton.png) | Fast bit-interleaving (Z-order), power-of-2 dimensions. |
+| **Hilbert** | ![8x8 Hilbert curve image](images/hilbert.png) | **Pros:** Excellent spatial locality; no large jumps.<br>**Cons:** Slightly more complex to compute than Morton.<br>**Applications:** Spatial indexing (e.g., Google Maps), range queries, and texture mapping. |
+| **Peano** | ![9x9 Peano curve image](images/peano.png) | **Pros:** The original SFC; provides a different granularity.<br>**Cons:** Limited to power-of-3 dimensions ($3 \times 3, 9 \times 9$, etc.).<br>**Applications:** Ternary-based data structures and theoretical studies. |
+| **Morton** | ![8x8 Morton curve image](images/morton.png) | **Pros:** Extremely fast (bit-interleaving).<br>**Cons:** Poorer locality due to large "jumps."<br>**Applications:** Database partitioning (e.g., DynamoDB), GPU memory layouts, and high-speed indexing. |
+| **Moore** | ![8x8 Moore curve image](images/moore.png) | **Pros:** Closed-loop; start and end points are adjacent.<br>**Cons:** Similar complexity to Hilbert.<br>**Applications:** Image scanning, cyclic traversals, and sensor path planning. |
 
 ## How to use
 
@@ -49,30 +50,20 @@ t, err := s.MapInverse(x, y)
 
 ## Demo
 
-The demo directory contains an example on how to draw an images of Hilbert and Peano curves, as well
-as animations of varying sizes for both.
+The demo directory contains examples of how to draw images of these curves, as well
+as animations of varying sizes.
+
+| Hilbert | Peano |
+| :---: | :---: |
+| ![Hilbert curve animation](images/hilbert_animation.gif) | ![Peano curve animation](images/peano_animation.gif) |
+| **Morton** | **Moore** |
+| ![Morton curve animation](images/morton_animation.gif) | ![Moore curve animation](images/moore_animation.gif) |
+
+To regenerate these images and optimize them, run:
 
 ```bash
-go run $GOPATH/src/github.com/bramp/hilbert/demo/demo.go
+make images
 ```
-
-and the following images are generated. 
-
-Simple 8x8 Hibert curve:
-
-![8x8 Hilbert curve image](images/hilbert.png)
-
-Simple 9x9 Peano curve:
-
-![9x9 Hilbert curve image](images/peano.png)
-
-Animation of Hibert curve with N in the range 1..8:
-
-![Hilbert curve animation](images/hilbert_animation.gif)
-
-Animation of Peano curve with N in the range 1..6:
-
-![Peano curve animation](images/peano_animation.gif)
 
 ## Licence (Apache 2)
 

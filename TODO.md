@@ -16,10 +16,10 @@ This document tracks the progress of adding new space-filling curves to the `hil
 - [x] README update
 
 ### 2. Moore Curve
-- [ ] Implementation (`moore.go`)
-- [ ] Tests (`moore_test.go`)
-- [ ] Sample image (`images/moore.png`)
-- [ ] README update
+- [x] Implementation (`moore.go`)
+- [x] Tests (`moore_test.go`)
+- [x] Sample image (`images/moore.png`)
+- [x] README update
 
 ### 3. Gosper Curve
 - [ ] Implementation (`gosper.go`)
