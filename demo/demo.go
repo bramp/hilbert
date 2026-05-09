@@ -16,7 +16,8 @@
 // When ran, this demo will create the following images:
 //
 //	hilbert.png, hilbert_animation.gif, peano.png, peano_animation.gif,
-//	morton.png, morton_animation.gif, moore.png, and moore_animation.gif
+//	morton.png, morton_animation.gif, moore.png, moore_animation.gif,
+//	sierpinski.png, and sierpinski_animation.gif
 //
 // It is suggested you optimise/compress both images before uploading.
 //
@@ -26,10 +27,12 @@
 //	zopflipng -y peano.png images/peano.png
 //	zopflipng -y morton.png images/morton.png
 //	zopflipng -y moore.png images/moore.png
+//	zopflipng -y sierpinski.png images/sierpinski.png
 //	gifsicle -O -o images/hilbert_animation.gif hilbert_animation.gif
 //	gifsicle -O -o images/peano_animation.gif peano_animation.gif
 //	gifsicle -O -o images/morton_animation.gif morton_animation.gif
 //	gifsicle -O -o images/moore_animation.gif moore_animation.gif
+//	gifsicle -O -o images/sierpinski_animation.gif sierpinski_animation.gif
 package main
 
 import (
@@ -267,6 +270,14 @@ func main() {
 		return s
 	}
 
+	newSierpinski := func(n int) hilbert.SpaceFilling {
+		s, err := hilbert.NewSierpinski(int(math.Pow(2, float64(n))))
+		if err != nil {
+			panic(fmt.Errorf("failed to create sierpinski space: %s", err.Error()))
+		}
+		return s
+	}
+
 	if err := mainDrawLogo("logo.png", newHilbert(4)); err != nil {
 		log.Fatalf("Failed to draw image: %s", err.Error())
 	}
@@ -300,6 +311,14 @@ func main() {
 	}
 
 	if err := mainDrawAnimation("moore_animation.gif", newMoore, 1, 8); err != nil {
+		log.Fatalf("Failed to draw animation: %s", err.Error())
+	}
+
+	if err := mainDrawOne("sierpinski.png", newSierpinski(3)); err != nil {
+		log.Fatalf("Failed to draw image: %s", err.Error())
+	}
+
+	if err := mainDrawAnimation("sierpinski_animation.gif", newSierpinski, 1, 8); err != nil {
 		log.Fatalf("Failed to draw animation: %s", err.Error())
 	}
 
