@@ -18,24 +18,16 @@ import (
 	"testing"
 )
 
-func TestMorton(t *testing.T) {
+func TestGosper(t *testing.T) {
 	testCurve(t, func(n int) (SpaceFilling2D, error) {
-		s, err := NewMorton(n)
+		s, err := NewGosper(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, GridSquare, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
+	}, GridHexagonal, 2, -1, ErrNotPositive, []curveTestCase{
 		{0, 0, 0},
-		{1, 0, 1},
-		{2, 1, 0},
-		{3, 1, 1},
-		{4, 0, 2},
-		{5, 0, 3},
-		{6, 1, 2},
-		{7, 1, 3},
-		{8, 2, 0},
-		{15, 3, 3},
-		{255, 15, 15},
+		{1, 1, 0},
+		{7, 2, 1},
 	})
 }

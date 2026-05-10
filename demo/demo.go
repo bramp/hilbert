@@ -13,31 +13,10 @@
 // limitations under the License.
 
 // Package main is a simple demo to show how to use the hilbert library
-// When ran, this demo will create the following images:
-//
-//	hilbert.png, hilbert_animation.gif, peano.png, peano_animation.gif,
-//	morton.png, morton_animation.gif, moore.png, moore_animation.gif,
-//	sierpinski.png, and sierpinski_animation.gif
-//
-// It is suggested you optimise/compress both images before uploading.
-//
-//	go run demo/demo.go
-//	zopflipng -y logo.png images/logo.png
-//	zopflipng -y hilbert.png images/hilbert.png
-//	zopflipng -y peano.png images/peano.png
-//	zopflipng -y morton.png images/morton.png
-//	zopflipng -y moore.png images/moore.png
-//	zopflipng -y sierpinski.png images/sierpinski.png
-//	gifsicle -O -o images/hilbert_animation.gif hilbert_animation.gif
-//	gifsicle -O -o images/peano_animation.gif peano_animation.gif
-//	gifsicle -O -o images/morton_animation.gif morton_animation.gif
-//	gifsicle -O -o images/moore_animation.gif moore_animation.gif
-//	gifsicle -O -o images/sierpinski_animation.gif sierpinski_animation.gif
 package main
 
 import (
 	"flag"
-	"fmt"
 	"image"
 	"image/color"
 	"image/gif"
@@ -55,7 +34,7 @@ import (
 
 // spaceFillingImage facilitates the drawing of a space filing curve.
 type spaceFillingImage struct {
-	Curve hilbert.SpaceFilling
+	Curve hilbert.SpaceFilling2D
 
 	// Size of each square in pixels
 	SquareWidth  float64
@@ -75,15 +54,12 @@ type spaceFillingImage struct {
 }
 
 // createSpaceFillingImage returns a new SpaceFillingImage ready for drawing.
-// squareWidth and squareHeight are the dimensions of each individual square in the resulting image.
-func createSpaceFillingImage(curve hilbert.SpaceFilling, squareWidth, squareHeight float64) *spaceFillingImage {
+func createSpaceFillingImage(curve hilbert.SpaceFilling2D, squareWidth, squareHeight float64) *spaceFillingImage {
 	return &spaceFillingImage{
 		Curve: curve,
 
 		SquareWidth:  squareWidth,
 		SquareHeight: squareHeight,
-
-		// All the default values
 
 		DrawGrid:   true,
 		DrawText:   true,
@@ -100,32 +76,60 @@ func createSpaceFillingImage(curve hilbert.SpaceFilling, squareWidth, squareHeig
 }
 
 func (h *spaceFillingImage) toPixel(x, y int) (float64, float64) {
-	return float64(x) * h.SquareWidth, float64(y) * h.SquareHeight
+	switch h.Curve.GetGridType() {
+	case hilbert.GridTriangular:
+		triSide := h.SquareWidth
+		triHeight := triSide * math.Sqrt(3) / 2
+		width, _ := h.Curve.GetDimensions()
+		totalWidth := float64(width) * triSide
+		rowY := float64(y) * triHeight
+		rowOffset := (totalWidth - float64(y+1)*triSide) / 2
+		return rowOffset + float64(x)*triSide/2, rowY
+
+	case hilbert.GridHexagonal:
+		size := h.SquareWidth / 2
+		px := size * 3 / 2 * float64(x)
+		py := size * math.Sqrt(3) * (float64(y) + float64(x)/2)
+		return px + 512, py + 512
+
+	default:
+		return float64(x) * h.SquareWidth, float64(y) * h.SquareHeight
+	}
 }
 
 func (h *spaceFillingImage) drawGrid(gc *gg.Context, width, height int) {
-
-	// Draw grid, vertical then horizontal lines
+	if h.Curve.GetGridType() != hilbert.GridSquare {
+		return
+	}
 	for x := 0; x <= width; x++ {
 		gc.MoveTo(h.toPixel(x, 0))
 		gc.LineTo(h.toPixel(x, height))
 	}
-
-	for y := 0; y < height; y++ {
+	for y := 0; y <= height; y++ {
 		gc.MoveTo(h.toPixel(0, y))
 		gc.LineTo(h.toPixel(width, y))
 	}
-
 	gc.SetLineWidth(h.GridWidth)
 	gc.SetColor(h.GridColor)
 	gc.Stroke()
 }
 
-// Draw uses the parameters in the hilbertImage and returns a Image
 func (h *spaceFillingImage) Draw() (*gg.Context, error) {
-
 	width, height := h.Curve.GetDimensions()
-	pwidth, pheight := h.toPixel(width, height)
+	gridType := h.Curve.GetGridType()
+
+	var pwidth, pheight float64
+	switch gridType {
+	case hilbert.GridTriangular:
+		triSide := h.SquareWidth
+		triHeight := triSide * math.Sqrt(3) / 2
+		pwidth = float64(width) * triSide
+		pheight = float64(height) * triHeight
+	case hilbert.GridHexagonal:
+		pwidth, pheight = 1024, 1024
+	default:
+		pwidth, pheight = float64(width)*h.SquareWidth, float64(height)*h.SquareHeight
+	}
 
 	gc := gg.NewContext(int(pwidth), int(pheight))
 	gc.SetColor(h.BackgroundColor)
@@ -135,48 +139,53 @@ func (h *spaceFillingImage) Draw() (*gg.Context, error) {
 		h.drawGrid(gc, width, height)
 	}
 
-	for t := 0; t < width*height; t++ {
-
-		// Map the 1D number into the 2D space
+	n := h.Curve.GetCount()
+	for t := 0; t < n; t++ {
 		x, y, err := h.Curve.Map(t)
 		if err != nil {
 			return nil, err
 		}
 
 		px, py := h.toPixel(x, y)
-
-		// Draw the grid for t
-		if h.DrawText {
-			text := strconv.Itoa(t)
-
+		if h.DrawText && gridType == hilbert.GridSquare {
 			gc.SetColor(h.TextColor)
-			gc.DrawStringAnchored(text, px+h.TextMargin, py, 0, 1)
+			gc.DrawStringAnchored(strconv.Itoa(t), px+h.TextMargin, py, 0, 1)
 		}
 
-		// Move the snake along
-		centerX, centerY := px+h.SquareWidth/2, py+h.SquareHeight/2
+		var cx, cy float64
+		switch gridType {
+		case hilbert.GridTriangular:
+			triSide := h.SquareWidth
+			triHeight := triSide * math.Sqrt(3) / 2
+			if x%2 == 0 {
+				cx, cy = px+triSide/2, py+triHeight*2/3
+			} else {
+				cx, cy = px+triSide/2, py+triHeight/3
+			}
+		case hilbert.GridHexagonal:
+			cx, cy = px, py
+		default:
+			cx, cy = px+h.SquareWidth/2, py+h.SquareHeight/2
+		}
+
 		if t == 0 {
-			gc.MoveTo(centerX, centerY)
+			gc.MoveTo(cx, cy)
 		} else {
-			gc.LineTo(centerX, centerY)
+			gc.LineTo(cx, cy)
 		}
 	}
 
-	// Draw the snake at the end, to form one continuous line.
 	gc.SetColor(h.SnakeColor)
 	gc.SetLineWidth(h.SnakeWidth)
-
 	gc.SetLineCap(gg.LineCapSquare)
 	gc.SetLineJoin(gg.LineJoinRound)
-
 	gc.Stroke()
 
 	return gc, nil
 }
 
-func mainDrawOne(filename string, curve hilbert.SpaceFilling) error {
+func mainDrawOne(filename string, curve hilbert.SpaceFilling2D) error {
 	log.Printf("Drawing one image %q", filename)
-
 	img, err := createSpaceFillingImage(curve, 64, 64).Draw()
 	if err != nil {
 		return err
@@ -184,35 +193,42 @@ func mainDrawOne(filename string, curve hilbert.SpaceFilling) error {
 	return img.SavePNG(filename)
 }
 
-func mainDrawAnimation(filename string, newCurve func(n int) hilbert.SpaceFilling, min, max int) error {
+func mainDrawAnimation(filename string, factory func(n int) hilbert.SpaceFilling2D, min, max int) error {
 	log.Printf("Drawing animation %q", filename)
-
 	iterations := max - min
-	imageWidth, imageHeight := 512.0, 512.0
-
 	g := gif.GIF{
 		Image:     make([]*image.Paletted, iterations),
 		Delay:     make([]int, iterations),
 		LoopCount: 0,
 	}
 
+	const canvasSize = 512.0
 	for i := 0; i < iterations; i++ {
-		log.Printf("    Drawing frame %d", i)
+		curve := factory(min + i)
+		w, h := curve.GetDimensions()
+		
+		gridType := curve.GetGridType()
+		var sw, sh float64
+		if gridType == hilbert.GridTriangular {
+			sw = canvasSize / float64(w)
+			sh = sw // triangular height will be calculated from this
+		} else if gridType == hilbert.GridHexagonal {
+			sw = 32.0 // Fixed size for hex
+			sh = 32.0
+		} else {
+			sw = canvasSize / float64(w)
+			sh = canvasSize / float64(h)
+		}
 
-		curve := newCurve(min + i)
-
-		width, height := curve.GetDimensions()
-		h := createSpaceFillingImage(curve, imageWidth/float64(width), imageHeight/float64(height))
-		h.DrawText = false
-		img, err := h.Draw()
+		himg := createSpaceFillingImage(curve, sw, sh)
+		himg.DrawText = false
+		img, err := himg.Draw()
 		if err != nil {
 			return err
 		}
-
 		g.Image[i] = lib.ConvertToPaletted(img.Image())
-		g.Delay[i] = 200 // 200 x 100th of a second = 2 second
+		g.Delay[i] = 100
 	}
-
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -220,17 +236,12 @@ func mainDrawAnimation(filename string, newCurve func(n int) hilbert.SpaceFillin
 	return gif.EncodeAll(f, &g)
 }
 
-func mainDrawLogo(filename string, curve hilbert.SpaceFilling) error {
-	const scale = 8
-
+func mainDrawLogo(filename string, curve hilbert.SpaceFilling2D) error {
 	log.Printf("Drawing logo %q", filename)
-
-	h := createSpaceFillingImage(curve, math.Pow(2, scale), math.Pow(2, scale))
-	h.DrawText = false
-	h.DrawGrid = false
-	h.SnakeWidth = math.Pow(2, scale-2)
+	h := createSpaceFillingImage(curve, 256, 256)
+	h.DrawText, h.DrawGrid = false, false
+	h.SnakeWidth = 64
 	h.BackgroundColor = color.Transparent
-
 	img, err := h.Draw()
 	if err != nil {
 		return err
@@ -239,109 +250,68 @@ func mainDrawLogo(filename string, curve hilbert.SpaceFilling) error {
 }
 
 func main() {
-	algo := flag.String("algo", "all", "The algorithm to draw (hilbert, peano, morton, moore, sierpinski, all)")
-	output := flag.String("output", "", "The output filename (e.g. images/hilbert.png). If omitted, uses default names.")
-	logo := flag.Bool("logo", false, "Draw the logo version (transparent background, no text/grid)")
+	algo := flag.String("algo", "all", "Algorithm")
+	output := flag.String("output", "", "Output filename")
+	logo := flag.Bool("logo", false, "Draw logo version")
 	flag.Parse()
 
-	newHilbert := func(n int) hilbert.SpaceFilling {
-		s, err := hilbert.NewHilbert(int(math.Pow(2, float64(n))))
-		if err != nil {
-			panic(fmt.Errorf("failed to create hilbert space: %s", err.Error()))
-		}
-		return s
+	factories := map[string]func(n int) hilbert.SpaceFilling2D{
+		"hilbert": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewHilbert(int(math.Pow(2, float64(n))))
+			return s
+		},
+		"peano": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewPeano(int(math.Pow(3, float64(n))))
+			return s
+		},
+		"morton": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewMorton(int(math.Pow(2, float64(n))))
+			return s
+		},
+		"moore": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewMoore(int(math.Pow(2, float64(n))))
+			return s
+		},
+		"sierpinski": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewSierpinski(int(math.Pow(2, float64(n))))
+			return s
+		},
+		"snake": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewSnake(int(math.Pow(2, float64(n))))
+			return s
+		},
+		"gosper": func(n int) hilbert.SpaceFilling2D {
+			s, _ := hilbert.NewGosper(n)
+			return s
+		},
 	}
 
-	newPeano := func(n int) hilbert.SpaceFilling {
-		s, err := hilbert.NewPeano(int(math.Pow(3, float64(n))))
-		if err != nil {
-			panic(fmt.Errorf("failed to create peano space: %s", err.Error()))
-		}
-		return s
-	}
-
-	newMorton := func(n int) hilbert.SpaceFilling {
-		s, err := hilbert.NewMorton(int(math.Pow(2, float64(n))))
-		if err != nil {
-			panic(fmt.Errorf("failed to create morton space: %s", err.Error()))
-		}
-		return s
-	}
-
-	newMoore := func(n int) hilbert.SpaceFilling {
-		s, err := hilbert.NewMoore(int(math.Pow(2, float64(n))))
-		if err != nil {
-			panic(fmt.Errorf("failed to create moore space: %s", err.Error()))
-		}
-		return s
-	}
-
-	newSierpinski := func(n int) hilbert.SpaceFilling {
-		s, err := hilbert.NewSierpinski(int(math.Pow(2, float64(n))))
-		if err != nil {
-			panic(fmt.Errorf("failed to create sierpinski space: %s", err.Error()))
-		}
-		return s
-	}
-
-	algos := map[string]struct {
-		newCurve func(n int) hilbert.SpaceFilling
-		min, max int
-	}{
-		"hilbert":    {newHilbert, 1, 8},
-		"peano":      {newPeano, 1, 6},
-		"morton":     {newMorton, 1, 8},
-		"moore":      {newMoore, 1, 8},
-		"sierpinski": {newSierpinski, 1, 8},
-	}
-
-	draw := func(name string) {
-		cfg, ok := algos[name]
-		if !ok {
-			log.Fatalf("Unknown algorithm: %s", name)
-		}
-
-		outName := *output
-		if outName == "" {
-			if *logo {
-				outName = "logo.png"
-			} else {
-				outName = name + ".png"
-			}
-		}
-
+	draw := func(name string, out string) {
+		factory := factories[name]
+		var err error
 		if *logo {
-			if err := mainDrawLogo(outName, cfg.newCurve(4)); err != nil {
-				log.Fatalf("Failed to draw logo: %v", err)
-			}
-			return
-		}
-
-		if filepath.Ext(outName) == ".gif" {
-			if err := mainDrawAnimation(outName, cfg.newCurve, cfg.min, cfg.max); err != nil {
-				log.Fatalf("Failed to draw animation: %v", err)
-			}
+			err = mainDrawLogo(out, factory(4))
+		} else if filepath.Ext(out) == ".gif" {
+			err = mainDrawAnimation(out, factory, 1, 5)
 		} else {
 			n := 3
-			if name == "peano" {
-				n = 2
-			}
-			if err := mainDrawOne(outName, cfg.newCurve(n)); err != nil {
-				log.Fatalf("Failed to draw image: %v", err)
-			}
+			if name == "peano" { n = 2 }
+			if name == "gosper" { n = 2 }
+			err = mainDrawOne(out, factory(n))
+		}
+		if err != nil {
+			log.Fatalf("Failed to draw %s: %v", name, err)
 		}
 	}
 
 	if *algo == "all" {
-		for name := range algos {
-			draw(name)
-			// Also draw animation for 'all'
-			if err := mainDrawAnimation(name+"_animation.gif", algos[name].newCurve, algos[name].min, algos[name].max); err != nil {
-				log.Fatalf("Failed to draw animation: %v", err)
-			}
+		for name := range factories {
+			draw(name, name+".png")
+			draw(name, name+"_animation.gif")
 		}
-		mainDrawLogo("logo.png", newHilbert(4))
 	} else {
-		draw(*algo)
+		out := *output
+		if out == "" { out = *algo + ".png" }
+		draw(*algo, out)
 	}
 }

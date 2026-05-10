@@ -22,13 +22,13 @@ import (
 const benchmarkN = 32
 
 func TestHilbert(t *testing.T) {
-	testCurve(t, func(n int) (SpaceFilling, error) {
+	testCurve(t, func(n int) (SpaceFilling2D, error) {
 		s, err := NewHilbert(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
+	}, GridSquare, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
 		{0, 0, 0},
 		{16, 4, 0},
 		{32, 4, 4},

@@ -19,13 +19,13 @@ import (
 )
 
 func TestMoore(t *testing.T) {
-	testCurve(t, func(n int) (SpaceFilling, error) {
+	testCurve(t, func(n int) (SpaceFilling2D, error) {
 		s, err := NewMoore(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
+	}, GridSquare, 16, 3, ErrNotPowerOfTwo, []curveTestCase{
 		{0, 7, 0},
 		{1, 6, 0},
 		{2, 6, 1},

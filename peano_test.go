@@ -22,13 +22,13 @@ import (
 const peanoBenchmarkN = 81
 
 func TestPeano(t *testing.T) {
-	testCurve(t, func(n int) (SpaceFilling, error) {
+	testCurve(t, func(n int) (SpaceFilling2D, error) {
 		s, err := NewPeano(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, 9, 2, ErrNotPowerOfThree, []curveTestCase{
+	}, GridSquare, 9, 2, ErrNotPowerOfThree, []curveTestCase{
 		{0, 0, 0},
 		{1, 0, 1},
 		{2, 0, 2},

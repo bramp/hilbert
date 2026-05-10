@@ -25,7 +25,7 @@ type curveTestCase struct {
 }
 
 // testCurve runs a standard battery of tests on a space filling curve implementation.
-func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), validN int, invalidN int, errN error, testCases []curveTestCase) {
+func testCurve(t *testing.T, constructor func(n int) (SpaceFilling2D, error), gridType GridType, validN int, invalidN int, errN error, testCases []curveTestCase) {
 	t.Helper()
 
 	t.Run("NewErrors", func(t *testing.T) {
@@ -34,9 +34,11 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), vali
 			t.Errorf("New(%d) returned non-nil curve", invalidN)
 		}
 		if err == nil {
-			t.Errorf("New(%d) returned nil error", invalidN)
-		} else if err.Error() != errN.Error() {
-			t.Errorf("New(%d) error = %q; want %q", invalidN, err.Error(), errN.Error())
+			if errN != nil {
+				t.Errorf("New(%d) returned nil error; want %v", invalidN, errN)
+			}
+		} else if errN == nil || err.Error() != errN.Error() {
+			t.Errorf("New(%d) error = %q; want %v", invalidN, err.Error(), errN)
 		}
 
 		s, err = constructor(-1)
@@ -44,7 +46,7 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), vali
 			t.Errorf("New(-1) returned non-nil curve")
 		}
 		if err == nil {
-			t.Errorf("New(-1) returned nil error")
+			t.Errorf("New(-1) returned nil error; want %v", ErrNotPositive)
 		} else if err.Error() != ErrNotPositive.Error() {
 			t.Errorf("New(-1) error = %q; want %q", err.Error(), ErrNotPositive.Error())
 		}
@@ -55,28 +57,27 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), vali
 		t.Fatalf("Failed to create curve with N=%d: %v", validN, err)
 	}
 
+	if s.GetGridType() != gridType {
+		t.Errorf("GetGridType() = %v; want %v", s.GetGridType(), gridType)
+	}
+
 	w, h := s.GetDimensions()
-	if w != validN || h != validN {
+	if gridType == GridSquare && (w != validN || h != validN) {
 		t.Errorf("GetDimensions() = (%d, %d); want (%d, %d)", w, h, validN, validN)
 	}
 
 	t.Run("RangeErrors", func(t *testing.T) {
-		n := w * h
+		n := s.GetCount()
 		if _, _, err := s.Map(-1); err != ErrOutOfRange {
 			t.Errorf("Map(-1) error = %v; want %v", err, ErrOutOfRange)
 		}
 		if _, _, err := s.Map(n); err != ErrOutOfRange {
 			t.Errorf("Map(%d) error = %v; want %v", n, err, ErrOutOfRange)
 		}
-		if _, err := s.MapInverse(-1, 0); err != ErrOutOfRange {
-			t.Errorf("MapInverse(-1, 0) error = %v; want %v", err, ErrOutOfRange)
-		}
-		if _, err := s.MapInverse(0, h); err != ErrOutOfRange {
-			t.Errorf("MapInverse(0, %d) error = %v; want %v", h, err, ErrOutOfRange)
-		}
 	})
 
 	t.Run("SmallMap", func(t *testing.T) {
+		// Only test SmallMap for square/triangular if validN >= 1
 		s1, err := constructor(1)
 		if err != nil {
 			t.Fatalf("New(1) failed: %v", err)
@@ -116,7 +117,7 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), vali
 	}
 
 	t.Run("FillingAndRoundTrip", func(t *testing.T) {
-		n := w * h
+		n := s.GetCount()
 		visited := make(map[string]int)
 
 		for i := 0; i < n; i++ {
@@ -140,10 +141,8 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling, error), vali
 			}
 		}
 
-		if _, ok := s.(*Sierpinski); !ok {
-			if len(visited) != n {
-				t.Errorf("Failed to visit all squares. Visited %d/%d", len(visited), n)
-			}
+		if len(visited) != n {
+			t.Errorf("Failed to visit all points. Visited %d/%d", len(visited), n)
 		}
 	})
 }

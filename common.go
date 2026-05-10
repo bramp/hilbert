@@ -24,10 +24,19 @@ var (
 	ErrOutOfRange      = errors.New("value is out of range")
 )
 
-// SpaceFilling represents a space-filling curve that can map points from one dimensions to two.
-type SpaceFilling interface {
+// GridType represents the underlying geometry of the 2D space.
+type GridType int
+
+const (
+	GridSquare     GridType = iota // (x,y) Cartesian coordinates
+	GridHexagonal                  // (q,r) Axial coordinates
+	GridTriangular                 // (u,v) Triangular coordinates
+)
+
+// SpaceFilling2D represents a 2D space-filling curve that can map points from one dimensions to two.
+type SpaceFilling2D interface {
 	// Map transforms a one dimension value, t, in the range [0, n^2-1] to coordinates on the
-	// curve in the two-dimension space, where x and y are within [0,n-1].
+	// curve in the two-dimension space.
 	Map(t int) (x, y int, err error)
 
 	// MapInverse transform coordinates on the curve from (x,y) to t.
@@ -35,7 +44,17 @@ type SpaceFilling interface {
 
 	// GetDimensions returns the width and height of the 2D space.
 	GetDimensions() (x, y int)
+
+	// GetCount returns the total number of points on the curve.
+	GetCount() int
+
+	// GetGridType returns the geometry of the grid.
+	GetGridType() GridType
 }
+
+// SpaceFilling is an alias for SpaceFilling2D for backward compatibility.
+// Deprecated: Use SpaceFilling2D instead.
+type SpaceFilling = SpaceFilling2D
 
 func b2i(b bool) int {
 	if b {

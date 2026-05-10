@@ -19,11 +19,11 @@ import (
 )
 
 func TestSierpinski(t *testing.T) {
-	testCurve(t, func(n int) (SpaceFilling, error) {
+	testCurve(t, func(n int) (SpaceFilling2D, error) {
 		s, err := NewSierpinski(n)
 		if err == nil {
 			return s, nil
 		}
 		return nil, err
-	}, 8, 3, ErrNotPowerOfTwo, nil)
+	}, GridTriangular, 8, 3, ErrNotPowerOfTwo, nil)
 }

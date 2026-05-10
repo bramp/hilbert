@@ -29,11 +29,10 @@ images/%_animation.gif: %.go $(COMMON_SRCS)
 	go run demo/demo.go -algo $* -output $@
 	gifsicle -O3 --colors 256 -o $@ $@
 
-# Special cases for Moore (which depends on Hilbert)
+# Special cases
 images/moore.png: hilbert.go
 images/moore_animation.gif: hilbert.go
 
-# Special case for the logo
 images/logo.png: hilbert.go $(COMMON_SRCS)
 	go run demo/demo.go -logo -output $@
 	zopflipng -y $@ $@
@@ -44,7 +43,9 @@ IMAGES := images/logo.png \
 	images/peano.png images/peano_animation.gif \
 	images/morton.png images/morton_animation.gif \
 	images/moore.png images/moore_animation.gif \
-	images/sierpinski.png images/sierpinski_animation.gif
+	images/sierpinski.png images/sierpinski_animation.gif \
+	images/snake.png images/snake_animation.gif \
+	images/gosper.png images/gosper_animation.gif
 
 images: $(IMAGES)
 

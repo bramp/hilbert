@@ -2,7 +2,7 @@
 
 
 Go package for mapping values to and from space-filling curves, such as
-Hilbert, Peano, Morton and Moore curves.
+Hilbert, Peano, Morton, Moore, Snake, and Gosper curves.
 
 ![Image of 8 by 8 Hilbert curve](images/hilbert.png)
 
@@ -20,7 +20,9 @@ Hilbert, Peano, Morton and Moore curves.
 | **Peano** | ![9x9 Peano curve image](images/peano.png) | **Pros:** The original SFC; provides a different granularity.<br>**Cons:** Limited to power-of-3 dimensions ($3 \times 3, 9 \times 9$, etc.).<br>**Applications:** Ternary-based data structures and theoretical studies. |
 | **Morton** | ![8x8 Morton curve image](images/morton.png) | **Pros:** Extremely fast (bit-interleaving).<br>**Cons:** Poorer locality due to large "jumps."<br>**Applications:** Database partitioning (e.g., DynamoDB), GPU memory layouts, and high-speed indexing. |
 | **Moore** | ![8x8 Moore curve image](images/moore.png) | **Pros:** Closed-loop; start and end points are adjacent.<br>**Cons:** Similar complexity to Hilbert.<br>**Applications:** Image scanning, cyclic traversals, and sensor path planning. |
-| **Sierpinski** | ![8x8 Sierpinski curve image](images/sierpinski.png) | **Pros:** Highly symmetrical; continuous closed curve.<br>**Cons:** More complex triangle-based mapping.<br>**Applications:** Traveling Salesman Problem heuristics and parallel grid refinement. |
+| **Sierpinski** | ![8x8 Sierpinski curve image](images/sierpinski.png) | **Pros:** Highly symmetrical; continuous closed curve.<br>**Cons:** Uses a triangular grid.<br>**Applications:** Traveling Salesman Problem heuristics and parallel grid refinement. |
+| **Snake** | ![8x8 Snake scan image](images/snake.png) | **Pros:** Simplest possible traversal.<br>**Cons:** Poor locality; large jumps at the end of rows.<br>**Applications:** Raster scanning and baseline benchmarks. |
+| **Gosper** | ![Order 2 Gosper curve image](images/gosper.png) | **Pros:** Fills hexagonal grids; beautiful fractal structure.<br>**Cons:** Complex mapping; uses base-7 axial coordinates.<br>**Applications:** Hexagonal data structures, image processing, and simulations. |
 
 ## How to use
 
@@ -58,10 +60,11 @@ as animations of varying sizes.
 | :---: | :---: |
 | ![Hilbert curve animation](images/hilbert_animation.gif) | ![Peano curve animation](images/peano_animation.gif) |
 | **Morton** | **Moore** |
-| :---: | :---: |
 | ![Morton curve animation](images/morton_animation.gif) | ![Moore curve animation](images/moore_animation.gif) |
-| **Sierpinski** | |
-| ![Sierpinski curve animation](images/sierpinski_animation.gif) | |
+| **Sierpinski** | **Snake** |
+| ![Sierpinski curve animation](images/sierpinski_animation.gif) | ![Snake animation](images/snake_animation.gif) |
+| **Gosper** | |
+| ![Gosper curve animation](images/gosper_animation.gif) | |
 
 To regenerate these images and optimize them, run:
 

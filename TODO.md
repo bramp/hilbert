@@ -1,11 +1,6 @@
 # Space-Filling Curves Implementation Roadmap
 
-This document tracks the progress of adding new space-filling curves to the `hilbert` package. Each implementation must include:
-- [ ] Core implementation in a new file (e.g., `morton.go`).
-- [ ] `Map` and `MapInverse` functions.
-- [ ] Comprehensive tests (including round-trip tests).
-- [ ] A sample image generated and stored in `images/`.
-- [ ] Updated `README.md` with descriptions and visuals.
+This document tracks the progress of adding new space-filling curves to the `hilbert` package.
 
 ## Curves to Implement
 
@@ -21,37 +16,31 @@ This document tracks the progress of adding new space-filling curves to the `hil
 - [x] Sample image (`images/moore.png`)
 - [x] README update
 
-### 3. Sierpinski Curve
-- [x] Implementation (`sierpinski.go`)
-- [ ] Tests (`sierpinski_test.go`)
-- [x] Sample image (`images/sierpinski.png`)
-- [x] README update
-
-### 4. Gray-code Traversal
-- [ ] Implementation (`graycode.go`)
-- [ ] Tests (`graycode_test.go`)
-- [ ] Sample image (`images/graycode.png`)
+### 3. Snake Traversal (Boustrophedon)
+- [ ] Implementation (`snake.go`)
+- [ ] Tests (`snake_test.go`)
+- [ ] Sample image (`images/snake.png`)
 - [ ] README update
 
-### 5. H-Curve
-- [ ] Implementation (`hcurve.go`)
-- [ ] Tests (`hcurve_test.go`)
-- [ ] Sample image (`images/hcurve.png`)
-- [ ] README update
-
-### 6. Gosper Curve
+### 4. Gosper Curve (Hexagonal)
 - [ ] Implementation (`gosper.go`)
 - [ ] Tests (`gosper_test.go`)
 - [ ] Sample image (`images/gosper.png`)
 - [ ] README update
 
-### 7. Dragon Curve
+### 5. Sierpinski Arrowhead (Triangular)
+- [ ] Implementation (`sierpinski.go`)
+- [ ] Tests (`sierpinski_test.go`)
+- [ ] Sample image (`images/sierpinski.png`)
+- [ ] README update
+
+### 6. Dragon Curve (Fractal)
 - [ ] Implementation (`dragon.go`)
 - [ ] Tests (`dragon_test.go`)
 - [ ] Sample image (`images/dragon.png`)
 - [ ] README update
 
 ## Documentation & Cleanup
-- [ ] Reorganize `README.md` to use a gallery/table for curves.
-- [ ] Ensure all curves implement the `SpaceFilling` interface.
-- [ ] Add a common interface definition if not already explicit.
+- [x] Reorganize `README.md` to use a gallery/table for curves.
+- [x] Refactor to `SpaceFilling2D` interface.
+- [x] Support multiple `GridType`s (Square, Hex, Triangle).
