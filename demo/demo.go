@@ -78,12 +78,15 @@ func createSpaceFillingImage(curve hilbert.SpaceFilling2D, squareWidth, squareHe
 func (h *spaceFillingImage) toPixel(x, y int) (float64, float64) {
 	switch h.Curve.GetGridType() {
 	case hilbert.GridTriangular:
+		// Row y, triangle x (where x is in [0, 2y])
 		triSide := h.SquareWidth
 		triHeight := triSide * math.Sqrt(3) / 2
 		width, _ := h.Curve.GetDimensions()
-		totalWidth := float64(width) * triSide
+
+		// Row y offset to center the triangle cluster
+		rowOffset := float64(width-y-1) * triSide / 2
 		rowY := float64(y) * triHeight
-		rowOffset := (totalWidth - float64(y+1)*triSide) / 2
+
 		return rowOffset + float64(x)*triSide/2, rowY
 
 	case hilbert.GridHexagonal:
@@ -98,17 +101,41 @@ func (h *spaceFillingImage) toPixel(x, y int) (float64, float64) {
 }
 
 func (h *spaceFillingImage) drawGrid(gc *gg.Context, width, height int) {
-	if h.Curve.GetGridType() != hilbert.GridSquare {
+	gridType := h.Curve.GetGridType()
+	if gridType == hilbert.GridSquare {
+		// Draw grid, vertical then horizontal lines
+		for x := 0; x <= width; x++ {
+			gc.MoveTo(h.toPixel(x, 0))
+			gc.LineTo(h.toPixel(x, height))
+		}
+		for y := 0; y <= height; y++ {
+			gc.MoveTo(h.toPixel(0, y))
+			gc.LineTo(h.toPixel(width, y))
+		}
+	} else if gridType == hilbert.GridTriangular {
+		triSide := h.SquareWidth
+		triHeight := triSide * math.Sqrt(3) / 2
+		centerX := (float64(width) * triSide) / 2
+
+		// Three families of parallel lines for a triangular lattice
+		for i := 0; i <= width; i++ {
+			// Horizontal lines
+			y := float64(i) * triHeight
+			halfW := float64(i) * triSide / 2
+			gc.DrawLine(centerX-halfW, y, centerX+halfW, y)
+
+			// Correct diagonal lines:
+			// 1. Parallel to left side (\)
+			// Starts at (centerX - i*s/2, i*h), ends at (centerX - i*s/2 + width*s/2, N*h)
+			gc.DrawLine(centerX-float64(i)*triSide/2, float64(i)*triHeight, centerX+float64(width-2*i)*triSide/2, float64(width)*triHeight)
+
+			// 2. Parallel to right side (/)
+			gc.DrawLine(centerX+float64(i)*triSide/2, float64(i)*triHeight, centerX-float64(width-2*i)*triSide/2, float64(width)*triHeight)
+		}
+	} else {
 		return
 	}
-	for x := 0; x <= width; x++ {
-		gc.MoveTo(h.toPixel(x, 0))
-		gc.LineTo(h.toPixel(x, height))
-	}
-	for y := 0; y <= height; y++ {
-		gc.MoveTo(h.toPixel(0, y))
-		gc.LineTo(h.toPixel(width, y))
-	}
+
 	gc.SetLineWidth(h.GridWidth)
 	gc.SetColor(h.GridColor)
 	gc.Stroke()
@@ -147,16 +174,13 @@ func (h *spaceFillingImage) Draw() (*gg.Context, error) {
 		}
 
 		px, py := h.toPixel(x, y)
-		if h.DrawText && gridType == hilbert.GridSquare {
-			gc.SetColor(h.TextColor)
-			gc.DrawStringAnchored(strconv.Itoa(t), px+h.TextMargin, py, 0, 1)
-		}
 
 		var cx, cy float64
 		switch gridType {
 		case hilbert.GridTriangular:
 			triSide := h.SquareWidth
 			triHeight := triSide * math.Sqrt(3) / 2
+			// Upright triangles are at even x
 			if x%2 == 0 {
 				cx, cy = px+triSide/2, py+triHeight*2/3
 			} else {
@@ -166,6 +190,16 @@ func (h *spaceFillingImage) Draw() (*gg.Context, error) {
 			cx, cy = px, py
 		default:
 			cx, cy = px+h.SquareWidth/2, py+h.SquareHeight/2
+		}
+
+		if h.DrawText {
+			gc.SetColor(h.TextColor)
+			text := strconv.Itoa(t)
+			if gridType == hilbert.GridSquare {
+				gc.DrawStringAnchored(text, px+h.TextMargin, py, 0, 1)
+			} else {
+				gc.DrawStringAnchored(text, cx, cy, 0.5, 0.5)
+			}
 		}
 
 		if t == 0 {
@@ -305,6 +339,11 @@ func main() {
 	}
 
 	if *algo == "all" {
+		if *logo && *output != "" {
+			// Logo mode with explicit output should render a single logo image.
+			draw("hilbert", *output)
+			return
+		}
 		for name := range factories {
 			draw(name, name+".png")
 			draw(name, name+"_animation.gif")
