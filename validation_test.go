@@ -74,6 +74,20 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling2D, error), gr
 		if _, _, err := s.Map(n); err != ErrOutOfRange {
 			t.Errorf("Map(%d) error = %v; want %v", n, err, ErrOutOfRange)
 		}
+
+		if gridType == GridTriangular {
+			// Test invalid triangular coordinates
+			if _, err := s.MapInverse(2*validN, validN-1); err != ErrOutOfRange {
+				t.Errorf("MapInverse(2N, N-1) error = %v; want %v", err, ErrOutOfRange)
+			}
+			if _, err := s.MapInverse(1, 0); err != ErrOutOfRange {
+				t.Errorf("MapInverse(1, 0) error = %v; want %v", err, ErrOutOfRange)
+			}
+		} else {
+			if _, err := s.MapInverse(validN, 0); err != ErrOutOfRange {
+				t.Errorf("MapInverse(N, 0) error = %v; want %v", err, ErrOutOfRange)
+			}
+		}
 	})
 
 	t.Run("SmallMap", func(t *testing.T) {
@@ -125,6 +139,17 @@ func testCurve(t *testing.T, constructor func(n int) (SpaceFilling2D, error), gr
 			if err != nil {
 				t.Errorf("Map(%d) error: %v", i, err)
 				continue
+			}
+
+			w, h := s.GetDimensions()
+			if gridType == GridTriangular {
+				if x < 0 || x > 2*y || y < 0 || y >= h {
+					t.Errorf("Map(%d) = (%d, %d) out of triangular bounds (row %d max x %d)", i, x, y, y, 2*y)
+				}
+			} else if gridType == GridSquare {
+				if x < 0 || x >= w || y < 0 || y >= h {
+					t.Errorf("Map(%d) = (%d, %d) out of square bounds", i, x, y)
+				}
 			}
 
 			key := fmt.Sprintf("%d,%d", x, y)
