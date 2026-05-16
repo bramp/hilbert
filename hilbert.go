@@ -44,6 +44,16 @@ func (s *Hilbert) GetDimensions() (int, int) {
 	return s.N, s.N
 }
 
+// GetGridType returns the geometry of the grid.
+func (s *Hilbert) GetGridType() GridType {
+	return GridSquare
+}
+
+// GetCount returns the total number of points on the curve.
+func (s *Hilbert) GetCount() int {
+	return s.N * s.N
+}
+
 // Map transforms a one dimension value, t, in the range [0, n^2-1] to coordinates on the Hilbert
 // curve in the two-dimension space, where x and y are within [0,n-1].
 func (s *Hilbert) Map(t int) (x, y int, err error) {

@@ -55,6 +55,16 @@ func (p *Peano) GetDimensions() (int, int) {
 	return p.N, p.N
 }
 
+// GetGridType returns the geometry of the grid.
+func (p *Peano) GetGridType() GridType {
+	return GridSquare
+}
+
+// GetCount returns the total number of points on the curve.
+func (p *Peano) GetCount() int {
+	return p.N * p.N
+}
+
 // Map transforms a one dimension value, t, in the range [0, n^3-1] to coordinates on the Peano
 // curve in the two-dimension space, where x and y are within [0,n-1].
 func (p *Peano) Map(t int) (x, y int, err error) {

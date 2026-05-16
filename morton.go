@@ -42,6 +42,16 @@ func (m *Morton) GetDimensions() (int, int) {
 	return m.N, m.N
 }
 
+// GetGridType returns the geometry of the grid.
+func (m *Morton) GetGridType() GridType {
+	return GridSquare
+}
+
+// GetCount returns the total number of points on the curve.
+func (m *Morton) GetCount() int {
+	return m.N * m.N
+}
+
 // Map transforms a one dimension value, t, in the range [0, n^2-1] to coordinates on the Morton
 // curve in the two-dimension space, where x and y are within [0,n-1].
 func (m *Morton) Map(t int) (x, y int, err error) {

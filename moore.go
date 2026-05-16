@@ -31,6 +31,16 @@ func NewMoore(n int) (*Moore, error) {
 	return &Moore{Hilbert: *h}, nil
 }
 
+// GetGridType returns the geometry of the grid.
+func (m *Moore) GetGridType() GridType {
+	return GridSquare
+}
+
+// GetCount returns the total number of points on the curve.
+func (m *Moore) GetCount() int {
+	return m.N * m.N
+}
+
 // Map transforms a one dimension value, t, in the range [0, n^2-1] to coordinates on the Moore
 // curve in the two-dimension space, where x and y are within [0,n-1].
 func (m *Moore) Map(t int) (x, y int, err error) {
